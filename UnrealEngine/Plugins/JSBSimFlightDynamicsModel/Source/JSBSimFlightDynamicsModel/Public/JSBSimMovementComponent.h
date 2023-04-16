@@ -198,12 +198,14 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere, Category = "State")
 	FAircraftState AircraftState;
 
-  // Events
-  UPROPERTY(VisibleAnywhere, BlueprintAssignable)
-  FDelegateAircraftCrashed AircraftCrashed;
+	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere, Category = "State")
+    TArray<AActor*> GroundCheckIgnoredActors;
 
+	// Events
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable)
+	FDelegateAircraftCrashed AircraftCrashed;
 
-    // Functions
+	// Functions
 
 	/* Returns the full Aircraft name as set in the JSBSim definition file */ 
 	FString GetAircraftScreenName() const;
