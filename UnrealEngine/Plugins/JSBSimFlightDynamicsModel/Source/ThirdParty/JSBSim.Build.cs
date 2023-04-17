@@ -11,7 +11,7 @@ public class JSBSim : ModuleRules
 
         bool bSupported = Target.Platform == UnrealTargetPlatform.Win64 ||
             Target.Platform == UnrealTargetPlatform.Mac ||
-            Target.Platform == UnrealTargetPlatform.Linux; // Android Soon
+            Target.Platform == UnrealTargetPlatform.Android; // Android Soon
 
         if (!bSupported) return;
 
