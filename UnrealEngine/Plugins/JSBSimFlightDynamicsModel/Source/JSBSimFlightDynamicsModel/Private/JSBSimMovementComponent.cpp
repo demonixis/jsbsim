@@ -12,14 +12,14 @@
 #pragma warning( disable : 4264 ) // FGOutputType.h(215): warning C4264: 'bool JSBSim::FGModel::Run(bool)': no override available for virtual member function from base 'JSBSim::FGModel'; function is hidden --- And others
 #pragma warning( disable : 4005 ) // compiler.h(58): warning C4005: 'DEPRECATED': macro redefinition with UE_5.0\Engine\Source\Runtime\Core\Public\Windows\WindowsPlatformCompilerPreSetup.h(55): note: see previous definition of 'DEPRECATED'
 #pragma warning( disable : 4458 ) // FGXMLElement.h(369): error C4458: declaration of 'name' hides class member
-#elif PLATFORM_MAC
-#pragma GCC push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#pragma GCC diagnostic ignored "-Wshadow"
-#elif PLATFORM_ANDROID || PLATFORM_LINUX
+#elif PLATFORM_ANDROID || PLATFORM_LINUX || PLATFORM_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
 #pragma clang diagnostic ignored "-Wshadow"
+#else
+#pragma GCC push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 #include "FGFDMExec.h"
