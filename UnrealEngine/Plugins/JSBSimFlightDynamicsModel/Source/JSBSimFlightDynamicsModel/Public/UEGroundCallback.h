@@ -12,6 +12,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
 #pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wuseless-cast"
 #elif defined(__GNUC__)
 #pragma GCC push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
