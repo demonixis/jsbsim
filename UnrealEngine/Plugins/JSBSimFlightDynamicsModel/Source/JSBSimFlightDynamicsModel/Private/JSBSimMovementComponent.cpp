@@ -12,14 +12,16 @@
 #pragma warning( disable : 4264 ) // FGOutputType.h(215): warning C4264: 'bool JSBSim::FGModel::Run(bool)': no override available for virtual member function from base 'JSBSim::FGModel'; function is hidden --- And others
 #pragma warning( disable : 4005 ) // compiler.h(58): warning C4005: 'DEPRECATED': macro redefinition with UE_5.0\Engine\Source\Runtime\Core\Public\Windows\WindowsPlatformCompilerPreSetup.h(55): note: see previous definition of 'DEPRECATED'
 #pragma warning( disable : 4458 ) // FGXMLElement.h(369): error C4458: declaration of 'name' hides class member
-#elif PLATFORM_ANDROID || PLATFORM_LINUX || PLATFORM_MAC
+#elif defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
 #pragma clang diagnostic ignored "-Wshadow"
-#else
+#pragma clang diagnostic ignored "-Wuseless-cast"
+#elif defined(__GNUC__)
 #pragma GCC push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #endif
 
 #include "FGFDMExec.h"
@@ -44,11 +46,11 @@
 #include "Interfaces/IPluginManager.h"
 #include "simgear/props/props.hxx"
 
-#if PLATFORM_WINDOWS
+#ifdef _MSC_VER
 #pragma warning( pop )
-#elif PLATFORM_ANDROID || PLATFORM_LINUX
+#elif defined(__clang__)
 #pragma clang diagnostic pop
-#elif PLATFORM_MAC
+#elif defined(__GNUC__)
 #pragma GCC pop
 #endif
 
