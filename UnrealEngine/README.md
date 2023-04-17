@@ -16,8 +16,7 @@ Enjoy, and Simulation for the win!
 
 ## Building the application 
 
- **1. Install Unreal Engine 5.x**
- 
+### 1. Install Unreal Engine 5.x
 The procedure to install Unreal Engine is described here : https://www.unrealengine.com/en-US/download
 For hobbyists, the [standard license](https://www.unrealengine.com/en-US/license) applies, and is 100% free! 
 
@@ -52,7 +51,7 @@ It is also recommended to set up Visual Studio for Unreal using the following pr
 [https://docs.unrealengine.com/5.0/en-US/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine/](https://docs.unrealengine.com/5.0/en-US/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine/)
 [https://docs.unrealengine.com/5.0/en-US/using-the-unrealvs-extension-for-unreal-engine-cplusplus-projects/](https://docs.unrealengine.com/5.0/en-US/using-the-unrealvs-extension-for-unreal-engine-cplusplus-projects/)
 
-**2. Build JSBSim as Dynamic libraries and stage Model files**
+### 2. Build JSBSim as Dynamic libraries and stage Model files (Windows)
 
 Unreal Engine requires that one plugin contains all its needed files in its sub-folders. 
 This application contains a `Plugins/JSBSimFlightDynamicsModel` folder containing the JSBSim files.
@@ -68,16 +67,54 @@ To make this process easier, there is a new solution named JSBSimForUnreal.sln a
  - It will take care of making a clean build, and copy all needed files at the right location
 	 - All libs and headers in `UnrealEngine\Plugins\JSBSimFlightDynamicsModel\Source\ThirdParty\JSBSim`
 	 - All resource files (aircrafts/engines/systems) in *UnrealEngine\Plugins\JSBSimFlightDynamicsModel\Resources\JSBSim*
- 
-**3. [Optional] - Download HD resources**
+
+### 3. Build JSBSim for Unix (Macos, Linux on its way)
+
+The first step is to build JSBSim on your target platform using cmake. Open an terminal and type the following commands
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+```bash
+# From the build folder
+cd ..
+
+# Copy headers
+rsync -avm --include='*.h' --include='*.hpp' --include='*.hxx' -f 'hide,! */' src/ UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Include/
+
+# Copy the JSBSim library (Macos)
+mkdir -p UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Mac/
+cp -Rf build/src/libJSBSim.a UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Mac/
+
+# Copy the JSBSim library (Linux)
+mkdir -p UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Linux/
+cp -Rf build/src/libJSBSim.a UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Linux/
+
+# Copy the JSBSim library (Android)
+mkdir -p UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Android/
+cp -Rf build/src/libJSBSim.a UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Android/
+
+# Copy the resource files
+mkdir -p UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Resources/JSBSim
+cp -Rf aircraft UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Resources/JSBSim
+cp -Rf engine UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Resources/JSBSim
+cp -Rf systems UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Resources/JSBSim
+```
+
+## 4. [Optional] - Download HD resources
  In order to keep the JSBSim repository lightweight, this application contains low quality resources. 
  If you would like to use better looking content, you can download HQ aircraft model, HD textures and non-flat terrain here: 
  [High Definition content pack (330 MB)](https://epicgames.box.com/s/93mupzix8qieu51v209ockq68heuxgwj)
  
  Simply extract this archive and copy/paste the content folder into the one of UEReferenceApp, overriding the existing files. 
  
-**4. Build/Open the Unreal Project**
+## 5. Build/Open the Unreal Project
 
+### With Windows
 **Option 1** : Simply double click on the `UnrealEngine\UEReferenceApp.uproject` file.
 It will open a popup complaining about missing modules (UEReferenceApp, JSBSimFlightDynamicsModel, JSBSimFlightDynamicsModelEditor). 
 Answer Yes, and the build will be triggered as a background task. 
@@ -91,6 +128,13 @@ After a short time, a new solution file `UEReferenceApp.sln` will appear beside 
 Open it, and "Build Startup project" from the UnrealVS Extension bar. 
 
 Note that this Option 2 is the recommended way to edit the plugin code, and then you can run and debug it like any other VS application. 
+
+### With Unix systems
+Run the following command to compile and run JSBSim for Unreal
+
+```bash
+$PATH_TO_UNREAL/Engine/Binaries/Linux/UnrealEditor $_PATH_TO_UNREAL_PROJECTS/jsbsim/UnrealEngine/UEReferenceApp.uproject
+```
 
 ## Learning more about Unreal Engine
 You can find many free learning resources on Unreal Engine Developper Community portal : 

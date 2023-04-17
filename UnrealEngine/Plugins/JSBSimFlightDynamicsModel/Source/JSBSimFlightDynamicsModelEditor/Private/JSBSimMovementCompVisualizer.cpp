@@ -3,8 +3,9 @@
 
 #include "JSBSimMovementCompVisualizer.h"
 #include "JSBSimMovementComponent.h"
+#include "CanvasTypes.h"
 
-
+#if PLATFORM_WINDOWS
 #pragma warning( push )
 #pragma warning( disable : 4263 )
 #pragma warning( disable : 4264 )
@@ -19,6 +20,7 @@
 #include "Engine/Engine.h"
 
 #pragma warning( pop )
+#endif
 
 #define FEET_TO_METER 0.3048
 #define METER_TO_FEET 3.2808398950131233595800524934383
