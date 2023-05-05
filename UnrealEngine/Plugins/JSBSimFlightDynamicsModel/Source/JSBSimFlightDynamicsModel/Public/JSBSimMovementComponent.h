@@ -198,18 +198,12 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere, Category = "State")
 	FAircraftState AircraftState;
 
-	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere, Category = "State")
-    TArray<AActor*> GroundCheckIgnoredActors;
-	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere, Category = "Settings")
-	bool bUseExternalAircraftPath;
-	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere, Category = "Settings")
-	FString ExternalAircraftPath;
+  // Events
+  UPROPERTY(VisibleAnywhere, BlueprintAssignable)
+  FDelegateAircraftCrashed AircraftCrashed;
 
-	// Events
-	UPROPERTY(VisibleAnywhere, BlueprintAssignable)
-	FDelegateAircraftCrashed AircraftCrashed;
 
-	// Functions
+    // Functions
 
 	/* Returns the full Aircraft name as set in the JSBSim definition file */ 
 	FString GetAircraftScreenName() const;

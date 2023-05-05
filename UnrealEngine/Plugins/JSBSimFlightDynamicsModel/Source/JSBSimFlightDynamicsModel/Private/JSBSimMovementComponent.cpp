@@ -5,7 +5,10 @@
 #include "JSBSimModule.h"
 
 // UE treats warning as errors. JSBSim has some warnings in its include files, so if we don't catch them inside this push/pop pragma, we won't be able to build...
-
+// FGOutputType.h(151): warning C4263: 'bool JSBSim::FGOutputType::Run(void)': member function does not override any base class virtual member function
+// FGOutputType.h(215): warning C4264: 'bool JSBSim::FGModel::Run(bool)': no override available for virtual member function from base 'JSBSim::FGModel'; function is hidden --- And others
+// compiler.h(58): warning C4005: 'DEPRECATED': macro redefinition with UE_5.0\Engine\Source\Runtime\Core\Public\Windows\WindowsPlatformCompilerPreSetup.h(55): note: see previous definition of 'DEPRECATED'
+// FGXMLElement.h(369): error C4458: declaration of 'name' hides class member
 #ifdef _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4263 )
@@ -16,12 +19,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
 #pragma clang diagnostic ignored "-Wshadow"
-#pragma clang diagnostic ignored "-Wuseless-cast"
-#elif defined(__GNUC__)
-#pragma GCC push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#pragma GCC diagnostic ignored "-Wshadow"
-#pragma GCC diagnostic ignored "-Wuseless-cast"
 #endif
 
 #include "FGFDMExec.h"
@@ -50,11 +47,10 @@
 #pragma warning( pop )
 #elif defined(__clang__)
 #pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#pragma GCC pop
 #endif
 
 #include "UEGroundCallback.h"
+
 #include "DrawDebugHelpers.h"
 #include "GeoReferencingSystem.h"
 #include "Components/ActorComponent.h"
@@ -221,9 +217,6 @@ double UJSBSimMovementComponent::GetAGLevel(const FVector& StartECEFLocation, FV
   FCollisionQueryParams CollisionParams(LineTraceSingleName);
   CollisionParams.bTraceComplex = true;
   CollisionParams.AddIgnoredActor(Parent);
-
-  if (GroundCheckIgnoredActors.Num() > 0)
-    CollisionParams.AddIgnoredActors(GroundCheckIgnoredActors);
 
   FCollisionObjectQueryParams ObjectParams = FCollisionObjectQueryParams(ECC_WorldStatic);
   ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -415,31 +408,26 @@ void UJSBSimMovementComponent::InitializeJSBSim()
         // Initialize the Models location, relatively to this plugin
 
 		// Get the base directory of this plugin
-		const FString BaseDir = IPluginManager::Get().FindPlugin("JSBSimFlightDynamicsModel")->GetBaseDir();
+		FString BaseDir = IPluginManager::Get().FindPlugin("JSBSimFlightDynamicsModel")->GetBaseDir();
 		// Add on the relative location of the third party dll and load it
-		const FString RootDirRelative = FPaths::Combine(*BaseDir, TEXT("Resources/JSBSim"));
-
-		if (bUseExternalAircraftPath && ExternalAircraftPath.IsEmpty())
-			bUseExternalAircraftPath = false;
-		
-		const FString& RootDir = bUseExternalAircraftPath ? ExternalAircraftPath : IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*RootDirRelative);
+		FString RootDirRelative = FPaths::Combine(*BaseDir, TEXT("Resources/JSBSim"));
+		const FString& RootDir = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*RootDirRelative);
 		UE_LOG(LogJSBSim, Display, TEXT("Initializing JSBSimFlightDynamicsModel using Data in '%s'"), *RootDir);
 
 		// Set data paths...
 		FString AircraftPath(TEXT("aircraft"));
 		FString EnginePath(TEXT("engine"));
 		FString SystemPath(TEXT("systems"));
-		
+
 		Exec->SetRootDir(SGPath(TCHAR_TO_UTF8(*RootDir)));
 		Exec->SetAircraftPath(SGPath(TCHAR_TO_UTF8(*AircraftPath)));
 		Exec->SetEnginePath(SGPath(TCHAR_TO_UTF8(*EnginePath)));
 		Exec->SetSystemsPath(SGPath(TCHAR_TO_UTF8(*SystemPath)));
-	  
 		// Prepare Initial Conditions
 		TrimNeeded = true;
 
 		// Base setup done so far. The other part of initial setup will be done on begin play, in InitJSBSim. 
-    JSBSimInitialized = true;
+        JSBSimInitialized = true;
 	}
 }
 

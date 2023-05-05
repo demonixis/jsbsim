@@ -1,6 +1,9 @@
+
+ 
+
 #!/bin/bash
 
-rm *.vs
+rm -rf *.vs
 rm -rf Saved
 rm -rf Binaries
 rm -rf Build
