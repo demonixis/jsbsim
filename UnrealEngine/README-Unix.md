@@ -9,18 +9,18 @@ This document describes how to build the JSBSim library as well as the Unreal En
 | Macos            | Supported |
 | Android          | Work in progress |
 
-## Building
+## Building (Easy way)
+Run `JSBSimForUnrealMac.sh` on Macos or `JSBSimForUnrealLinux.sh` on Linux
+
+## Building (Hard way)
 The first step is to build JSBSim on your target platform using cmake. Open an terminal and type the following commands
 
 ### For Macos
-On macos you've to install Julia first, for instance using homebrew with the following command `brew install julia`.
-
 
 ```bash
-mkdir -p build && cd build 
-julia -e "import Pkg;Pkg.add(\"CxxWrap\")" 
-export CXXWRAP_PREFIX_PATH=`julia -e "using CxxWrap;print(CxxWrap.prefix_path())"` 
-cmake -DCMAKE_INCLUDE_PATH=$PWD/../cxxtest -DBUILD_JULIA_PACKAGE=ON -DCYTHON_FLAGS="-X embedsignature=True" -DCMAKE_PREFIX_PATH=$CXXWRAP_PREFIX_PATH .. 
+mkdir build
+cd build
+cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="-stdlib=libc++" ..
 make -j4
 ```
 
@@ -45,7 +45,7 @@ rsync -avm --include='*.h' --include='*.hpp' --include='*.hxx' -f 'hide,! */' sr
 
 # Copy the JSBSim library (Macos)
 mkdir -p UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Mac/
-cp -Rf build/julia/libJSBSimJL.dylib UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Mac/libJSBSim.dylib
+cp -Rf build/src/libJSBSim.1.2.0.dev1.dylib UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Mac/libJSBSim.dylib
 
 # Copy the JSBSim library (Linux)
 mkdir -p UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Source/ThirdParty/JSBSim/Lib/Linux/
@@ -66,6 +66,12 @@ cp -Rf systems UnrealEngine/Plugins/JSBSimFlightDynamicsModel/Resources/JSBSim
 
 Run the following command to compile and run JSBSim for Unreal
 
+You can generate a makefile or an Xcode workspace using the following command
+
 ```bash
-$PATH_TO_UNREAL/Engine/Binaries/Linux/UnrealEditor $_PATH_TO_UNREAL_PROJECTS/jsbsim/UnrealEngine/UEReferenceApp.uproject
+$PATH_TO_UNREAL/Engine/Build/BatchFiles/Mac/GenerateProjectFiles.sh $PATH_TO_JSBSIM/UnrealEngine/UEReferenceApp.uproject -game
+```
+
+```bash
+$PATH_TO_UNREAL/Engine/Binaries/Linux/UnrealEditor $PATH_TO_JSBSIM/UnrealEngine/UEReferenceApp.uproject
 ```

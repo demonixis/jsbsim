@@ -104,5 +104,5 @@ UnrealEngine/Binaries
 UnrealEngine/DerivedDataCache
 UnrealEngine/Intermediate
 UnrealEngine/Saved
-
-UnrealEngine
+UnrealEngine/UEReferenceApp.xcworkspace
+UnrealEngine/UEReferenceApp.sln
