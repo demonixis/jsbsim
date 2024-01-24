@@ -8,15 +8,12 @@ public class JSBSim : ModuleRules
     public JSBSim(ReadOnlyTargetRules Target) : base(Target)
     {
         Type = ModuleType.External;
-
-        bool bJSBSimSupported = Target.Platform == UnrealTargetPlatform.Win64 ||
-                                Target.Platform == UnrealTargetPlatform.Mac || 
-                                Target.Platform == UnrealTargetPlatform.Linux || 
-                                Target.Platform == UnrealTargetPlatform.Android;
-
+        
         if (Target.Platform == UnrealTargetPlatform.Win64)
             SetupWindowsPlatform();
-        else
+        else if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform == UnrealTargetPlatform.IOS)
+            SetupApplePlatform();
+        else if (Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.Android)
             SetupUnixPlatform();
     }
 
@@ -47,6 +44,25 @@ public class JSBSim : ModuleRules
         // Stage DLL along the binaries files
         string DllFullPath = CheckForFile(LibPath, "JSBSim.dll");
         RuntimeDependencies.Add("$(BinaryOutputDir)/" + "JSBSim.dll", DllFullPath);
+    }
+
+    private void SetupApplePlatform()
+    {
+        string JSBSimLocalFolder = "JSBSim";
+        string LibFolderName = "Lib";
+        string LibPath = Path.Combine(ModuleDirectory, JSBSimLocalFolder, LibFolderName, $"{Target.Platform}");
+
+        // Include headers
+        string IncludePath = Path.Combine(ModuleDirectory, JSBSimLocalFolder, "Include");
+        PublicSystemIncludePaths.Add(IncludePath);
+
+        string[] DarwinLibs = new [] { "libJSBSim.dylib", "libJSBSim.1.dylib", "libJSBSim.1.2.0.dev1.dylib" };
+        for(int i = 0; i < DarwinLibs.Length; i++)
+        {
+            string lib = CheckForFile(LibPath, DarwinLibs[i]);
+            PublicAdditionalLibraries.Add(lib);
+            RuntimeDependencies.Add(lib);
+        }
     }
 
     private void SetupUnixPlatform()
