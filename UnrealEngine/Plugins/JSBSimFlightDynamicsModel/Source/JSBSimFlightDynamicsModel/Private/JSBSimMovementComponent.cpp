@@ -406,13 +406,13 @@ void UJSBSimMovementComponent::InitializeJSBSim()
 		PropertyManager = Exec->GetPropertyManager();
 
         // Initialize the Models location, relatively to this plugin
-
 		// Get the base directory of this plugin
 		FString BaseDir = IPluginManager::Get().FindPlugin("JSBSimFlightDynamicsModel")->GetBaseDir();
 		// Add on the relative location of the third party dll and load it
 		FString RootDirRelative = FPaths::Combine(*BaseDir, TEXT("Resources/JSBSim"));
 		const FString& RootDir = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*RootDirRelative);
-		UE_LOG(LogJSBSim, Display, TEXT("Initializing JSBSimFlightDynamicsModel using Data in '%s'"), *RootDir);
+
+		UE_LOG(LogJSBSim, Display, TEXT("Initializing JSBSimFlightDynamicsModel using Data in '%s'"), *RootDir);		
 
 		// Set data paths...
 		FString AircraftPath(TEXT("aircraft"));
