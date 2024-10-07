@@ -5,6 +5,7 @@
 #include "JSBSimMovementComponent.h"
 #include "CanvasTypes.h"
 
+#if JSBSIM_SUPPORTED
 // UE treats warning as errors. JSBSim has some warnings in its include files, so if we don't catch them inside this push/pop pragma, we won't be able to build...
 // FGOutputType.h(151): warning C4263: 'bool JSBSim::FGOutputType::Run(void)': member function does not override any base class virtual member function
 // FGOutputType.h(215): warning C4264: 'bool JSBSim::FGModel::Run(bool)': no override available for virtual member function from base 'JSBSim::FGModel'; function is hidden --- And others
@@ -36,6 +37,8 @@
 #pragma clang diagnostic pop
 #endif
 
+#endif // JSBSIM_SUPPORTED
+
 #define FEET_TO_METER 0.3048
 #define METER_TO_FEET 3.2808398950131233595800524934383
 #define INCH_TO_CENTIMETER 2.54
@@ -49,6 +52,7 @@ FJSBSimMovementCompVisualizer::~FJSBSimMovementCompVisualizer()
 {
 }
 
+#if JSBSIM_SUPPORTED
 void FJSBSimMovementCompVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {
 	const UJSBSimMovementComponent* MovementComponent = Cast<UJSBSimMovementComponent>(Component);
@@ -138,3 +142,4 @@ void FJSBSimMovementCompVisualizer::DrawVisualizationHUD(const UActorComponent* 
 		}
 	}
 }
+#endif // JSBSIM_SUPPORTED

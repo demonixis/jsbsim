@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
+#if JSBSIM_SUPPORTED
 #include "UEGroundCallback.h"
 #include "JSBSimMovementComponent.h"
 
@@ -34,3 +33,4 @@ double UEGroundCallback::GetAGLevel(double t, const FGLocation& location, FGLoca
 	// Don't care about time here... 
 	return GetAGLevel(location, contact, normal, vel, angularVel);
 }
+#endif

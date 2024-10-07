@@ -2,6 +2,7 @@
 
 #pragma once
 
+#if JSBSIM_SUPPORTED
 // UE treats warning as errors. JSBSim has some warnings in its include files, so if we don't catch them inside this push/pop pragma, we won't be able to build...
 // FGOutputType.h(151): warning C4263: 'bool JSBSim::FGOutputType::Run(void)': member function does not override any base class virtual member function
 // FGOutputType.h(215): warning C4264: 'bool JSBSim::FGModel::Run(bool)': no override available for virtual member function from base 'JSBSim::FGModel'; function is hidden --- And others
@@ -30,7 +31,6 @@
 #endif
 
 #include "CoreMinimal.h"
-
 
 using namespace JSBSim;
 
@@ -70,6 +70,8 @@ public:
 	  @return altitude above ground
    */
 	double GetAGLevel(double t, const FGLocation& location, FGLocation& contact, FGColumnVector3& normal, FGColumnVector3& vel, FGColumnVector3& angularVel) const override;
+
 private:
 	UJSBSimMovementComponent* MovementComponent;
 };
+#endif // JSBSIM_SUPPORTED

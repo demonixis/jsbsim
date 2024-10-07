@@ -9,8 +9,7 @@
 #include "FDMTypes.h"
 #include "JSBSimMovementComponent.generated.h"
 
-
-
+#if JSBSIM_SUPPORTED
 // JSBSim Forward Declarations
 namespace JSBSim {
 	class FGFDMExec;
@@ -31,6 +30,7 @@ namespace JSBSim {
 	class FGPropertyManager;
 	class FGGroundReactions;
 }
+#endif
 
 // UE Forward Declarations
 class AGeoReferencingSystem;
@@ -255,6 +255,7 @@ protected:
 	void OnRegister() override;
 
 protected:
+#if JSBSIM_SUPPORTED
 	// JSBSim Objects - TODO - Hide in an JSBSimInternals Structure to allow adding a public dependency without requiring JSBSim Includes
 	JSBSim::FGFDMExec* Exec = nullptr;
 	
@@ -275,6 +276,7 @@ protected:
 	
 	std::shared_ptr<JSBSim::FGPropertyManager> PropertyManager = nullptr; // TODO ?? virer ?
 	std::shared_ptr<JSBSim::FGInitialCondition> IC = nullptr;
+#endif // JSBSIM_SUPPORTED
 
 	FTransform StructuralToActor;
 	FTransform BodyToActor;

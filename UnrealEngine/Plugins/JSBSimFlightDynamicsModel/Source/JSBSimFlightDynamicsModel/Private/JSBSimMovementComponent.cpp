@@ -4,6 +4,7 @@
 #include "JSBSimMovementComponent.h"
 #include "JSBSimModule.h"
 
+#if JSBSIM_SUPPORTED
 // UE treats warning as errors. JSBSim has some warnings in its include files, so if we don't catch them inside this push/pop pragma, we won't be able to build...
 // FGOutputType.h(151): warning C4263: 'bool JSBSim::FGOutputType::Run(void)': member function does not override any base class virtual member function
 // FGOutputType.h(215): warning C4264: 'bool JSBSim::FGModel::Run(bool)': no override available for virtual member function from base 'JSBSim::FGModel'; function is hidden --- And others
@@ -51,6 +52,8 @@
 
 #include "UEGroundCallback.h"
 
+#endif // JSBSIM_SUPPORTED
+
 #include "DrawDebugHelpers.h"
 #include "GeoReferencingSystem.h"
 #include "Components/ActorComponent.h"
@@ -83,10 +86,12 @@ UJSBSimMovementComponent::UJSBSimMovementComponent()
 FString UJSBSimMovementComponent::GetAircraftScreenName() const
 {
   FString ScreenName;
+#if JSBSIM_SUPPORTED
   if (AircraftLoaded && Aircraft)
   {
     ScreenName = FString(Aircraft->GetAircraftName().c_str());
   }
+#endif
 
   return ScreenName;
 }
@@ -94,6 +99,7 @@ FString UJSBSimMovementComponent::GetAircraftScreenName() const
 
 void UJSBSimMovementComponent::PropertyManagerNode(TArray<FString>& Catalog)
 {
+#if JSBSIM_SUPPORTED
   auto newlist = Exec->GetPropertyCatalog();
 
   //convert list to array
@@ -101,11 +107,13 @@ void UJSBSimMovementComponent::PropertyManagerNode(TArray<FString>& Catalog)
   {
     Catalog.Add(iterate.c_str());
   }
+#endif
 }
 
 //TODO, check if this is optimized, as we are using strings for convenience and we could probably cache the propertynode once we have it
 void UJSBSimMovementComponent::CommandConsole(FString Property, FString InValue, FString& OutValue)
 {
+#if JSBSIM_SUPPORTED
   FGPropertyNode* node = PropertyManager->GetNode(TCHAR_TO_UTF8(*Property), false);
   if (node != NULL)
   {
@@ -122,12 +130,13 @@ void UJSBSimMovementComponent::CommandConsole(FString Property, FString InValue,
   //{
   //  return;
   //}
-
+#endif
 }
 
 //TODO, check if this is optimized, as we are using strings for convenience and we could probably cache the propertynode once we have it
 void UJSBSimMovementComponent::CommandConsoleBatch(TArray<FString> Property, TArray<FString> InValue, TArray<FString>& OutValue)
 {
+#if JSBSIM_SUPPORTED
   OutValue.SetNum(Property.Num());
   for (int i = 0; i < Property.Num(); i++)
   {
@@ -149,12 +158,14 @@ void UJSBSimMovementComponent::CommandConsoleBatch(TArray<FString> Property, TAr
   //{
   //  return;
   //}
+#endif
 }
 
 
 
 void UJSBSimMovementComponent::LoadAircraft(bool ResetToDefaultSettings)
 {
+#if JSBSIM_SUPPORTED
   UE_LOG(LogJSBSim, Display, TEXT("UJSBSimMovementComponent::LoadAircraft %s"), *AircraftModel);
 
   // It seems like we can only load the model once after having been initialized - So we have to Reinit JSBSim when changing the model.
@@ -189,10 +200,12 @@ void UJSBSimMovementComponent::LoadAircraft(bool ResetToDefaultSettings)
   }
 
   InitEnginesCommandAndStates();
+#endif
 }
 
 double UJSBSimMovementComponent::GetAGLevel(const FVector& StartECEFLocation, FVector& ECEFContactPoint, FVector& ECEFNormal)
 {
+#if JSBSIM_SUPPORTED
   if (!GeoReferencingSystem || !GetWorld())
   {
     return 0.0;
@@ -247,6 +260,9 @@ double UJSBSimMovementComponent::GetAGLevel(const FVector& StartECEFLocation, FV
     ECEFNormal = FVector::ZAxisVector;
   }
   return HAT;
+#else
+  return 0;
+#endif
 }
 
 ////// ActorComponent overridables
@@ -254,6 +270,7 @@ void UJSBSimMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
   Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+#if JSBSIM_SUPPORTED
   double Start = FPlatformTime::Seconds();
 
   if (AircraftLoaded)
@@ -329,6 +346,7 @@ void UJSBSimMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
   // Get some stats - TODO - Use the UE Stats system
   double End = FPlatformTime::Seconds();
   TickTime = (End - Start) * 1000.0;
+#endif
 }
 
 void UJSBSimMovementComponent::BeginDestroy()
@@ -343,6 +361,7 @@ void UJSBSimMovementComponent::BeginPlay()
 {
   Super::BeginPlay();
 
+#if JSBSIM_SUPPORTED
   // Init local variables from Level Objects
   Parent = GetOwner();
 
@@ -363,12 +382,13 @@ void UJSBSimMovementComponent::BeginPlay()
     LoadAircraft(false); // Start with a Fresh JSBSim object, but potentially with overridden properties
     PrepareJSBSim();
   }
+#endif
 }
 
 void UJSBSimMovementComponent::OnRegister()
 {
   Super::OnRegister();
-
+#if JSBSIM_SUPPORTED
   if (!GeoReferencingSystem)
   {
     GeoReferencingSystem = AGeoReferencingSystem::GetGeoReferencingSystem(GetWorld());
@@ -378,12 +398,14 @@ void UJSBSimMovementComponent::OnRegister()
       UE_LOG(LogJSBSim, Error, TEXT("Impossible to use a UJSBSimMovementComponent without a GeoReferencingSystem."));
     }
   }
+#endif
 }
 
 /////////// JSBSim Protected methods
 
 void UJSBSimMovementComponent::InitializeJSBSim()
 {
+#if JSBSIM_SUPPORTED
   if (!JSBSimInitialized)
   {
     // Construct the JSBSim FDM
@@ -430,12 +452,14 @@ void UJSBSimMovementComponent::InitializeJSBSim()
     // Base setup done so far. The other part of initial setup will be done on begin play, in InitJSBSim. 
     JSBSimInitialized = true;
   }
+#endif
 }
 
 void UJSBSimMovementComponent::PrepareJSBSim()
 {
   UE_LOG(LogJSBSim, Display, TEXT("PrepareJSBSim - Setting Initial Conditiond and computing initial state"));
 
+#if JSBSIM_SUPPORTED
   // The Aircraft should have been loaded first
   if (!AircraftLoaded)
   {
@@ -558,10 +582,12 @@ void UJSBSimMovementComponent::PrepareJSBSim()
 
   // Aircraft Trim done - Get result state
   CopyFromJSBSim();
+#endif
 }
 
 void UJSBSimMovementComponent::DeInitializeJSBSim()
 {
+#if JSBSIM_SUPPORTED
   if (JSBSimInitialized)
   {
     UE_LOG(LogJSBSim, Display, TEXT("DeInitializeJSBSim"));
@@ -588,10 +614,12 @@ void UJSBSimMovementComponent::DeInitializeJSBSim()
 
     JSBSimInitialized = false;
   }
+#endif
 }
 
 void UJSBSimMovementComponent::CopyToJSBSim()
 {
+#if JSBSIM_SUPPORTED
   // Basic flight controls
   FCS->SetDaCmd(Commands.Aileron);
   FCS->SetRollTrimCmd(Commands.RollTrim);
@@ -648,10 +676,12 @@ void UJSBSimMovementComponent::CopyToJSBSim()
 
   CopyTankPropertiesToJSBSim();
   CopyGearPropertiesToJSBSim();
+#endif
 }
 
 void UJSBSimMovementComponent::CopyFromJSBSim()
 {
+#if JSBSIM_SUPPORTED
   // Collect JSBSim data
   Propagate->DumpState();
 
@@ -704,11 +734,13 @@ void UJSBSimMovementComponent::CopyFromJSBSim()
   CopyTankPropertiesFromJSBSim();
   CopyGearPropertiesFromJSBSim();
   GetEnginesStates();
+#endif
 }
 
 /////////// JSBSim Private methods
 void UJSBSimMovementComponent::DoTrim()
 {
+#if JSBSIM_SUPPORTED
   JSBSim::FGTrim* Trim;
 
   if (StartOnGround)
@@ -737,10 +769,12 @@ void UJSBSimMovementComponent::DoTrim()
   Commands.Rudder = -FCS->GetDrCmd(); // TODO - Why this minus sign? Is it from FlightGear logic ?
 
   UE_LOG(LogJSBSim, Display, TEXT("Trim Complete"));
+#endif
 }
 
 void UJSBSimMovementComponent::UpdateLocalTransforms()
 {
+#if JSBSIM_SUPPORTED
   if (MassBalance == nullptr || Aircraft == nullptr || GroundReactions == nullptr)
     return;
 
@@ -782,11 +816,13 @@ void UJSBSimMovementComponent::UpdateLocalTransforms()
       Gears[i].RelativeLocation = BodyToActor.TransformPosition(FVector(GearBodyLocation(1), GearBodyLocation(2), GearBodyLocation(3)));
     }
   }
+#endif
 }
 
 // Gears
 void UJSBSimMovementComponent::InitGearDefaultProperties()
 {
+#if JSBSIM_SUPPORTED
   uint32 GearsCount = GroundReactions->GetNumGearUnits();
   Gears.Empty();
   if (GearsCount > 0)
@@ -806,16 +842,20 @@ void UJSBSimMovementComponent::InitGearDefaultProperties()
       Gears[i].Name = FString(Gear->GetName().c_str());
     }
   }
+#endif
 }
 
 void UJSBSimMovementComponent::CopyGearPropertiesToJSBSim()
 {
+#if JSBSIM_SUPPORTED
   // TODO - What can be changed from the default values? 
   // Maybe the initial extension, but not sure it can be done...
+#endif
 }
 
 void UJSBSimMovementComponent::CopyGearPropertiesFromJSBSim()
 {
+#if JSBSIM_SUPPORTED
   for (int i = 0; i < GroundReactions->GetNumGearUnits(); i++)
   {
     std::shared_ptr<JSBSim::FGLGear> Gear = GroundReactions->GetGearUnit(i);
@@ -835,11 +875,13 @@ void UJSBSimMovementComponent::CopyGearPropertiesFromJSBSim()
       Gears[i].Force = BodyToActor.TransformPosition(FVector(GearBodyForce(1), GearBodyForce(2), GearBodyForce(3)));
     }
   }
+#endif
 }
 
 // Tanks
 void UJSBSimMovementComponent::InitTankDefaultProperties()
 {
+#if JSBSIM_SUPPORTED
   // Set initial fuel levels if overridden by the user.
   uint32 TanksCount = Propulsion->GetNumTanks();
   Tanks.Empty();
@@ -857,10 +899,12 @@ void UJSBSimMovementComponent::InitTankDefaultProperties()
       Tanks[i].TemperatureCelcius = Tank->GetTemperature_degC();
     }
   }
+#endif
 }
 
 void UJSBSimMovementComponent::CopyTankPropertiesToJSBSim()
 {
+#if JSBSIM_SUPPORTED
   for (unsigned i = 0; i < Propulsion->GetNumTanks(); i++)
   {
     std::shared_ptr<JSBSim::FGTank> tank = Propulsion->GetTank(i);
@@ -878,10 +922,12 @@ void UJSBSimMovementComponent::CopyTankPropertiesToJSBSim()
       tank->SetContentsGallons(UETank.ContentGallons);
     }
   }
+#endif
 }
 
 void UJSBSimMovementComponent::CopyTankPropertiesFromJSBSim()
 {
+#if JSBSIM_SUPPORTED
   FuelFreeze = Propulsion->GetFuelFreeze();
   for (unsigned int i = 0; i < Propulsion->GetNumTanks(); i++)
   {
@@ -896,12 +942,14 @@ void UJSBSimMovementComponent::CopyTankPropertiesFromJSBSim()
       Tanks[i].TemperatureCelcius = Tank->GetTemperature_degC();
     }
   }
+#endif
 }
 
 
 // Engines
 void UJSBSimMovementComponent::InitEnginesCommandAndStates()
 {
+#if JSBSIM_SUPPORTED
   EngineCommands.Empty();
   EngineStates.Empty();
 
@@ -915,10 +963,12 @@ void UJSBSimMovementComponent::InitEnginesCommandAndStates()
     // Apply default properties
     // TODO - Not sure there are to apply. it will be done by command/states
   }
+#endif
 }
 
 void UJSBSimMovementComponent::ApplyEnginesCommands()
 {
+#if JSBSIM_SUPPORTED
   // Global to all engines
   Propulsion->SetFuelFreeze(FuelFreeze);
 
@@ -979,10 +1029,12 @@ void UJSBSimMovementComponent::ApplyEnginesCommands()
       break;
     }
   }
+#endif
 }
 
 void UJSBSimMovementComponent::GetEnginesStates()
 {
+#if JSBSIM_SUPPORTED
   // For each engine
   int32 EngineCount = EngineStates.Num();
   for (int32 i = 0; i < EngineCount; i++)
@@ -1041,12 +1093,14 @@ void UJSBSimMovementComponent::GetEnginesStates()
       break;
     }
   }
+#endif
 }
 
 /////////// Logging and Debugging Methods
 
 void UJSBSimMovementComponent::LogInitialization()
 {
+#if JSBSIM_SUPPORTED
   UE_LOG(LogJSBSim, Display, TEXT("Initialized JSB Sim with : "));
 
   // Speed
@@ -1076,10 +1130,12 @@ void UJSBSimMovementComponent::LogInitialization()
 
   // Lat/Long
   UE_LOG(LogJSBSim, Display, TEXT("  Latitude: %f, Longitude: %f deg, Altitude: %f feet"), Propagate->GetLocation().GetGeodLatitudeDeg(), Propagate->GetLocation().GetLongitudeDeg(), Propagate->GetAltitudeASL());
+#endif
 }
 
 void UJSBSimMovementComponent::DrawDebugMessage()
 {
+#if JSBSIM_SUPPORTED
   // Build message string before displaying it at once
   FString DebugMessage;
 
@@ -1131,10 +1187,12 @@ void UJSBSimMovementComponent::DrawDebugMessage()
   // Draw
   FVector2D TextScale = FVector2D::UnitVector;
   GEngine->AddOnScreenDebugMessage(1, 0, FColor::Green, *DebugMessage, false, TextScale);
+#endif
 }
 
 void UJSBSimMovementComponent::DrawDebugObjects()
 {
+#if JSBSIM_SUPPORTED
   for (FGear Gear : Gears)
   {
     FVector WorldPosition = GetOwner()->GetTransform().TransformPosition(Gear.RelativeLocation);
@@ -1156,6 +1214,7 @@ void UJSBSimMovementComponent::DrawDebugObjects()
     {
       DrawDebugPoint(GetWorld(), WorldPosition, 8, FColor(128, 128, 128), false);
     }
+#endif
   }
 
 
